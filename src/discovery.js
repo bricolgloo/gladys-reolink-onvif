@@ -105,7 +105,7 @@ function connectCamera(ip, port, user, password, logger) {
 
           // Unique external ID based on MAC or serial
           const serial = info.serialNumber || info.hardwareId || ip.replace(/\./g, '_');
-          const externalId = `reolink-onvif:${serial}`;
+          const externalId = serial;
           const name = info.model ? `${info.manufacturer} ${info.model}` : `Camera ${ip}`;
 
           logger.info(`Connected: ${name} at ${ip} (PTZ: ${hasPTZ}, Audio: ${hasAudio})`);
