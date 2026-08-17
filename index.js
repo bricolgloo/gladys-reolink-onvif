@@ -119,7 +119,7 @@ function buildDevices(gladys, cam) {
       max: 1,
     });
   }
-
+logger.info('Device external_id: ' + gladys.externalId(cam.externalId));
   return [
     {
       name: cam.name,
