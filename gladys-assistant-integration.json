@@ -1,6 +1,7 @@
 {
   "manifest_version": 1,
   "name": "Reolink ONVIF",
+<<<<<<< HEAD
   "type": "device",
   "version": "1.0.1",
   "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.1",
@@ -10,8 +11,22 @@
     "fr": "Connectez vos caméras Reolink à Gladys via ONVIF (local, sans cloud). Supporte snapshots, détection de mouvement, PTZ et audio."
   },
   "categories": ["security", "multimedia"],
+=======
+  "selector": "reolink-onvif",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.1",
+  "cover_image": "https://raw.githubusercontent.com/bricolgloo/gladys-reolink-onvif/main/cover.png",
+  "description_en": "Connect your Reolink cameras to Gladys via ONVIF (local, no cloud). Supports snapshots, motion detection, PTZ control and audio.",
+  "description_fr": "Connectez vos caméras Reolink à Gladys via ONVIF (local, sans cloud). Supporte snapshots, détection de mouvement, contrôle PTZ et audio.",
+  "categories": [
+    "security",
+    "multimedia"
+  ],
+>>>>>>> 7446bf376bd9829313aa079df5b9700ab7029cc9
   "gladys_version": ">=4.86.0",
-  "transports": ["local"],
+  "transports": [
+    "local"
+  ],
   "config_schema": [
     {
       "key": "CAMERA_USER",
