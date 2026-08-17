@@ -7,9 +7,14 @@
   "cover_image": "https://raw.githubusercontent.com/bricolgloo/gladys-reolink-onvif/main/cover.png",
   "description_en": "Reolink cameras via ONVIF protocol, local only, no cloud required.",
   "description_fr": "Caméras Reolink via protocole ONVIF, local uniquement, sans cloud.",
-  "categories": ["security", "multimedia"],
+  "categories": [
+    "security",
+    "multimedia"
+  ],
   "gladys_version": ">=4.86.0",
-  "transports": ["local"],
+  "transports": [
+    "local"
+  ],
   "config_schema": [
     {
       "key": "camera_user",
