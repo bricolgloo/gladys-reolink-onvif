@@ -38,7 +38,7 @@ async function init(gladys, config) {
     for (const cam of cameras) {
       const devices = buildDevices(gladys, cam);
       for (const device of devices) {
-        await gladys.createDevice(device);
+        await gladys.publishDiscoveredDevices([device]);
         logger.info(`Registered camera: ${device.name}`);
       }
       state.cameras[cam.externalId] = cam;
