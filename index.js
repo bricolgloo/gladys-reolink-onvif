@@ -136,10 +136,10 @@ logger.info('Device external_id: ' + gladys.externalId(cam.externalId));
 }
 
 async function main() {
-  const gladys = new GladysIntegration({
-    selector: 'reolink-onvif',
-    logger,
-  });
+const gladys = new GladysIntegration({
+  selector: 'ext-bricolgloo-gladys-reolink-onvif',
+  logger,
+});
 
   gladys.handleShutdown(async () => {
     logger.info('Shutting down...');
