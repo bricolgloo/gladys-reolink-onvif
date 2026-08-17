@@ -1,6 +1,7 @@
 'use strict';
 
-const { GladysIntegration, createLogger, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('@gladysassistant/integration-sdk');const { loadConfig } = require('./src/config');
+const { GladysIntegration, createLogger, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('@gladysassistant/integration-sdk');
+const { loadConfig } = require('./src/config');
 const { discoverCameras, connectCameras } = require('./src/discovery');
 const { startMotionPolling, stopMotionPolling } = require('./src/events');
 const { startSnapshotLoop, stopSnapshotLoop } = require('./src/snapshots');
@@ -21,13 +22,13 @@ async function init(gladys) {
   logger.info('Starting Reolink ONVIF integration...');
 
   try {
-    await gladys.setConnectionStatus(false, 'Connecting to cameras...');
+    await gladys.setConnectionStatus(false, { en: 'Connecting to cameras...', fr: 'Connexion aux caméras...' });
 
     // Connect cameras (discovery or manual IPs)
     const cameras = await connectCameras(state.config, logger);
 
     if (cameras.length === 0) {
-      await gladys.setConnectionStatus(false, 'No cameras found. Check your settings or add IPs manually.');
+      await gladys.setConnectionStatus(false, { en: 'No cameras found. Check IP and credentials.', fr: 'Aucune caméra trouvée. Vérifiez IP et identifiants.' });
       return;
     }
 
@@ -49,7 +50,7 @@ async function init(gladys) {
     startMotionPolling(gladys, state, logger);
   } catch (err) {
     logger.error('Initialization error:', err.message);
-    await gladys.setConnectionStatus(false, err.message);
+    await gladys.setConnectionStatus(false, { en: err.message, fr: err.message });
   }
 }
 
@@ -138,10 +139,10 @@ function buildDevices(gladys, cam) {
 }
 
 async function main() {
-const gladys = new GladysIntegration({
-  selector: 'reolink-onvif',
-  logger,
-});
+  const gladys = new GladysIntegration({
+    selector: 'reolink-onvif',
+    logger,
+  });
 
   gladys.handleShutdown(async () => {
     logger.info('Shutting down...');
