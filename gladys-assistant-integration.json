@@ -2,67 +2,96 @@
   "manifest_version": 1,
   "name": "Reolink ONVIF",
   "type": "device",
-  "version": "1.0.1",
-  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.1",
+  "version": "1.0.2",
+  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.2",
   "cover_image": "https://raw.githubusercontent.com/bricolgloo/gladys-reolink-onvif/main/cover.png",
   "description": {
     "en": "Connect your Reolink cameras to Gladys via ONVIF (local, no cloud). Supports snapshots, motion detection, PTZ and audio.",
     "fr": "Connectez vos caméras Reolink à Gladys via ONVIF (local, sans cloud). Supporte snapshots, détection de mouvement, PTZ et audio."
   },
-  "categories": ["security", "multimedia"],
+  "categories": [
+    "security",
+    "multimedia"
+  ],
   "gladys_version": ">=4.86.0",
-  "transports": ["local"],
+  "transports": [
+    "local"
+  ],
   "config_schema": [
     {
       "key": "CAMERA_USER",
       "type": "text",
       "required": true,
-      "label": { "en": "Camera username", "fr": "Identifiant des caméras" },
+      "label": {
+        "en": "Camera username",
+        "fr": "Identifiant des caméras"
+      },
       "placeholder": "admin"
     },
     {
       "key": "CAMERA_PASSWORD",
       "type": "password",
       "required": true,
-      "label": { "en": "Camera password", "fr": "Mot de passe des caméras" }
+      "label": {
+        "en": "Camera password",
+        "fr": "Mot de passe des caméras"
+      }
     },
     {
       "key": "ONVIF_PORT",
       "type": "text",
       "required": false,
-      "label": { "en": "ONVIF port", "fr": "Port ONVIF" },
+      "label": {
+        "en": "ONVIF port",
+        "fr": "Port ONVIF"
+      },
       "placeholder": "8000"
     },
     {
       "key": "CAMERA_IPS",
       "type": "text",
       "required": false,
-      "label": { "en": "Camera IPs (optional)", "fr": "IPs des caméras (optionnel)" },
+      "label": {
+        "en": "Camera IPs (optional)",
+        "fr": "IPs des caméras (optionnel)"
+      },
       "placeholder": "192.168.1.75"
     },
     {
       "key": "SNAPSHOT_INTERVAL",
       "type": "text",
       "required": false,
-      "label": { "en": "Snapshot interval (s)", "fr": "Intervalle snapshot (s)" },
+      "label": {
+        "en": "Snapshot interval (s)",
+        "fr": "Intervalle snapshot (s)"
+      },
       "placeholder": "60"
     },
     {
       "key": "MOTION_POLL_INTERVAL",
       "type": "text",
       "required": false,
-      "label": { "en": "Motion poll interval (s)", "fr": "Intervalle événements (s)" },
+      "label": {
+        "en": "Motion poll interval (s)",
+        "fr": "Intervalle événements (s)"
+      },
       "placeholder": "5"
     }
   ],
   "actions": [
     {
       "key": "discover_cameras",
-      "label": { "en": "Discover cameras", "fr": "Découvrir les caméras" }
+      "label": {
+        "en": "Discover cameras",
+        "fr": "Découvrir les caméras"
+      }
     },
     {
       "key": "test_connection",
-      "label": { "en": "Test connection", "fr": "Tester la connexion" }
+      "label": {
+        "en": "Test connection",
+        "fr": "Tester la connexion"
+      }
     }
   ]
 }
