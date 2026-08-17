@@ -2,8 +2,8 @@
   "manifest_version": 1,
   "name": "Reolink ONVIF",
   "type": "device",
-  "version": "1.0.4",
-  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.4",
+  "version": "1.0.5",
+  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.5",
   "cover_image": "https://raw.githubusercontent.com/bricolgloo/gladys-reolink-onvif/main/cover.png",
   "description": {
     "en": "Reolink cameras via ONVIF protocol, local only, no cloud required.",
