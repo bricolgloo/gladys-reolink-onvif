@@ -2,30 +2,32 @@
 
 const { GladysIntegration, createLogger, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('@gladysassistant/integration-sdk');
 const { loadConfig } = require('./src/config');
-const { discoverCameras, connectCameras } = require('./src/discovery');
+const { connectCameras } = require('./src/discovery');
 const { startMotionPolling, stopMotionPolling } = require('./src/events');
 const { startSnapshotLoop, stopSnapshotLoop } = require('./src/snapshots');
 const { handleSetValue } = require('./src/actions');
 
 const logger = createLogger({ name: 'reolink-onvif' });
 
-// State shared across modules
 const state = {
-  cameras: {}, // { externalId: { device, cam, onvifCam } }
+  cameras: {},
   config: null,
   motionTimers: {},
   snapshotTimers: {},
 };
 
-async function init(gladys) {
-  state.config = loadConfig(gladys.getConfig());
-  logger.info('Config received: ' + JSON.stringify(gladys.getConfig()));
+async function init(gladys, config) {
+  state.config = config;
   logger.info('Starting Reolink ONVIF integration...');
+  logger.info('Config: ' + JSON.stringify(config));
+
+  stopSnapshotLoop(state);
+  stopMotionPolling(state);
+  state.cameras = {};
 
   try {
     await gladys.setConnectionStatus(false, { en: 'Connecting to cameras...', fr: 'Connexion aux caméras...' });
 
-    // Connect cameras (discovery or manual IPs)
     const cameras = await connectCameras(state.config, logger);
 
     if (cameras.length === 0) {
@@ -33,7 +35,6 @@ async function init(gladys) {
       return;
     }
 
-    // Register devices in Gladys
     for (const cam of cameras) {
       const devices = buildDevices(gladys, cam);
       for (const device of devices) {
@@ -46,7 +47,6 @@ async function init(gladys) {
     await gladys.setConnectionStatus(true);
     logger.info(`Connected ${cameras.length} camera(s).`);
 
-    // Start polling loops
     startSnapshotLoop(gladys, state, logger);
     startMotionPolling(gladys, state, logger);
   } catch (err) {
@@ -57,7 +57,6 @@ async function init(gladys) {
 
 function buildDevices(gladys, cam) {
   const features = [
-    // Motion sensor
     {
       name: 'Motion',
       external_id: gladys.externalId(`${cam.externalId}:motion`),
@@ -69,7 +68,6 @@ function buildDevices(gladys, cam) {
       min: 0,
       max: 1,
     },
-    // Camera image
     {
       name: 'Image',
       external_id: gladys.externalId(`${cam.externalId}:image`),
@@ -83,7 +81,6 @@ function buildDevices(gladys, cam) {
     },
   ];
 
-  // Add PTZ features if supported
   if (cam.hasPTZ) {
     features.push({
       name: 'PTZ Move',
@@ -94,7 +91,7 @@ function buildDevices(gladys, cam) {
       keep_history: false,
       has_feedback: false,
       min: 0,
-      max: 8, // 8 directions
+      max: 8,
     });
     features.push({
       name: 'PTZ Preset',
@@ -109,7 +106,6 @@ function buildDevices(gladys, cam) {
     });
   }
 
-  // Add audio mute feature if supported
   if (cam.hasAudio) {
     features.push({
       name: 'Audio',
@@ -151,7 +147,6 @@ async function main() {
     stopMotionPolling(state);
   });
 
-  // Handle on-demand image capture
   gladys.onGetImage(async (externalId) => {
     const cam = Object.values(state.cameras).find(
       (c) => gladys.externalId(`${c.externalId}:image`) === externalId,
@@ -160,18 +155,13 @@ async function main() {
     return cam.getSnapshot();
   });
 
-  // Handle setValue (PTZ, audio, etc.)
   gladys.onSetValue(async (device, feature, value) => {
     await handleSetValue(state, gladys, device, feature, value, logger);
   });
 
-  // Handle action buttons from config UI
   gladys.onAction('discover_cameras', async () => {
-    await init(gladys);
-    return {
-      en: 'Discovery complete.',
-      fr: 'Découverte terminée.',
-    };
+    if (state.config) await init(gladys, state.config);
+    return { en: 'Discovery complete.', fr: 'Découverte terminée.' };
   });
 
   gladys.onAction('test_connection', async () => {
@@ -188,8 +178,13 @@ async function main() {
     return { en: msg, fr: msg };
   });
 
+  // Config is received via onConfigUpdated, not getConfig() at startup
+  gladys.onConfigUpdated(async (config) => {
+    logger.info('Config updated, reinitializing...');
+    await init(gladys, loadConfig(config));
+  });
+
   await gladys.connect();
-  await init(gladys);
 }
 
 main().catch((err) => {
