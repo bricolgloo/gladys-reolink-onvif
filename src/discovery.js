@@ -41,7 +41,6 @@ function discoverCameras(logger) {
     const { Discovery } = require('onvif');
     const found = [];
 
-    // Discovery timeout: 5 seconds
     const timer = setTimeout(() => {
       logger.info(`Discovery finished: found ${found.length} camera(s).`);
       resolve(found);
@@ -52,11 +51,13 @@ function discoverCameras(logger) {
       found.push(rinfo.address);
     });
 
-    Discovery.probe().catch((err) => {
+    try {
+      Discovery.probe();
+    } catch (err) {
       logger.warn('Discovery probe error:', err.message);
       clearTimeout(timer);
       resolve(found);
-    });
+    }
   });
 }
 
