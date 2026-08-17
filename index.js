@@ -1,7 +1,6 @@
 'use strict';
 
-const { createGladys, createLogger, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('@gladysassistant/integration-sdk');
-const { loadConfig } = require('./src/config');
+const { GladysIntegration, createLogger, DEVICE_FEATURE_CATEGORIES, DEVICE_FEATURE_TYPES } = require('@gladysassistant/integration-sdk');const { loadConfig } = require('./src/config');
 const { discoverCameras, connectCameras } = require('./src/discovery');
 const { startMotionPolling, stopMotionPolling } = require('./src/events');
 const { startSnapshotLoop, stopSnapshotLoop } = require('./src/snapshots');
@@ -139,10 +138,10 @@ function buildDevices(gladys, cam) {
 }
 
 async function main() {
-  const gladys = createGladys({
-    selector: 'reolink-onvif',
-    logger,
-  });
+const gladys = new GladysIntegration({
+  selector: 'reolink-onvif',
+  logger,
+});
 
   gladys.handleShutdown(async () => {
     logger.info('Shutting down...');
