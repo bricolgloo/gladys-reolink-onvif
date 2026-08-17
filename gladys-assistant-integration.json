@@ -1,96 +1,68 @@
 {
+  "manifest_version": 1,
   "name": "Reolink ONVIF",
-  "selector": "reolink-onvif",
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.0",
+  "type": "device",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/bricolgloo/gladys-reolink-onvif:1.0.1",
   "cover_image": "https://raw.githubusercontent.com/bricolgloo/gladys-reolink-onvif/main/cover.png",
-  "description_en": "Connect your Reolink cameras to Gladys via ONVIF (local, no cloud). Supports snapshots, motion detection, PTZ control and audio.",
-  "description_fr": "Connectez vos caméras Reolink à Gladys via ONVIF (local, sans cloud). Supporte snapshots, détection de mouvement, contrôle PTZ et audio.",
+  "description": {
+    "en": "Connect your Reolink cameras to Gladys via ONVIF (local, no cloud). Supports snapshots, motion detection, PTZ and audio.",
+    "fr": "Connectez vos caméras Reolink à Gladys via ONVIF (local, sans cloud). Supporte snapshots, détection de mouvement, PTZ et audio."
+  },
   "categories": ["security", "multimedia"],
   "gladys_version": ">=4.86.0",
   "transports": ["local"],
   "config_schema": [
     {
-      "type": "section",
-      "title_en": "Getting started",
-      "title_fr": "Pour commencer",
-      "description_en": "This integration communicates directly with your Reolink cameras on your local network via the ONVIF protocol (port 8000 by default). No Reolink account or cloud required.",
-      "description_fr": "Cette intégration communique directement avec vos caméras Reolink sur votre réseau local via le protocole ONVIF (port 8000 par défaut). Aucun compte Reolink ni cloud requis."
-    },
-    {
       "key": "CAMERA_USER",
       "type": "text",
       "required": true,
-      "label_en": "Camera username",
-      "label_fr": "Identifiant des caméras",
-      "placeholder": "admin",
-      "description_en": "The username configured on your Reolink cameras (usually 'admin').",
-      "description_fr": "L'identifiant configuré sur vos caméras Reolink (généralement 'admin')."
+      "label": { "en": "Camera username", "fr": "Identifiant des caméras" },
+      "placeholder": "admin"
     },
     {
       "key": "CAMERA_PASSWORD",
       "type": "password",
       "required": true,
-      "label_en": "Camera password",
-      "label_fr": "Mot de passe des caméras",
-      "description_en": "The password for the above account.",
-      "description_fr": "Le mot de passe du compte ci-dessus."
+      "label": { "en": "Camera password", "fr": "Mot de passe des caméras" }
     },
     {
       "key": "ONVIF_PORT",
       "type": "text",
       "required": false,
-      "label_en": "ONVIF port",
-      "label_fr": "Port ONVIF",
-      "placeholder": "8000",
-      "description_en": "ONVIF port of your cameras (default: 8000). Check in Reolink app → Device info → Network → Server settings.",
-      "description_fr": "Port ONVIF de vos caméras (défaut: 8000). Vérifiable dans l'app Reolink → Infos appareil → Réseau → Paramètres serveur."
+      "label": { "en": "ONVIF port", "fr": "Port ONVIF" },
+      "placeholder": "8000"
     },
     {
       "key": "CAMERA_IPS",
       "type": "text",
       "required": false,
-      "label_en": "Camera IP addresses (optional)",
-      "label_fr": "Adresses IP des caméras (optionnel)",
-      "placeholder": "192.168.1.75, 192.168.1.76",
-      "description_en": "Comma-separated list of camera IPs. Leave empty to use automatic ONVIF discovery.",
-      "description_fr": "Liste d'IP de caméras séparées par des virgules. Laisser vide pour utiliser la découverte ONVIF automatique."
+      "label": { "en": "Camera IPs (optional)", "fr": "IPs des caméras (optionnel)" },
+      "placeholder": "192.168.1.75"
     },
     {
       "key": "SNAPSHOT_INTERVAL",
       "type": "text",
       "required": false,
-      "label_en": "Snapshot interval (seconds)",
-      "label_fr": "Intervalle de capture (secondes)",
-      "placeholder": "60",
-      "description_en": "How often to refresh camera snapshots (default: 60s).",
-      "description_fr": "Fréquence de rafraîchissement des snapshots (défaut: 60s)."
+      "label": { "en": "Snapshot interval (s)", "fr": "Intervalle snapshot (s)" },
+      "placeholder": "60"
     },
     {
       "key": "MOTION_POLL_INTERVAL",
       "type": "text",
       "required": false,
-      "label_en": "Motion event poll interval (seconds)",
-      "label_fr": "Intervalle d'interrogation des événements (secondes)",
-      "placeholder": "5",
-      "description_en": "How often to poll ONVIF events for motion detection (default: 5s).",
-      "description_fr": "Fréquence d'interrogation des événements ONVIF pour la détection de mouvement (défaut: 5s)."
+      "label": { "en": "Motion poll interval (s)", "fr": "Intervalle événements (s)" },
+      "placeholder": "5"
     }
   ],
   "actions": [
     {
       "key": "discover_cameras",
-      "label_en": "Discover cameras",
-      "label_fr": "Découvrir les caméras",
-      "description_en": "Scan the network for ONVIF cameras and add them to Gladys.",
-      "description_fr": "Scanner le réseau à la recherche de caméras ONVIF et les ajouter à Gladys."
+      "label": { "en": "Discover cameras", "fr": "Découvrir les caméras" }
     },
     {
       "key": "test_connection",
-      "label_en": "Test connection",
-      "label_fr": "Tester la connexion",
-      "description_en": "Test the connection to all configured cameras.",
-      "description_fr": "Tester la connexion à toutes les caméras configurées."
+      "label": { "en": "Test connection", "fr": "Tester la connexion" }
     }
   ]
 }
