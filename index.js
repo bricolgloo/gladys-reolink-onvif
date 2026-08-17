@@ -19,6 +19,7 @@ const state = {
 
 async function init(gladys) {
   state.config = loadConfig(gladys.getConfig());
+  logger.info('Config received: ' + JSON.stringify(gladys.getConfig()));
   logger.info('Starting Reolink ONVIF integration...');
 
   try {
