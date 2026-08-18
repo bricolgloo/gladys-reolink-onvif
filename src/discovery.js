@@ -122,6 +122,7 @@ execFile('ffmpeg', [
   '-i', rtspUri,
   '-frames:v', '1',
   '-q:v', '2',
+  '-vf', 'scale=640:-1',
   '-update', '1',
   '-y', tmpFile,
 ], { timeout: 15000 }, (err) => {
