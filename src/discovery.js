@@ -2,12 +2,11 @@
 
 const { Cam } = require('onvif');
 const { promisify } = require('util');
-const DigestFetch = require('digest-fetch');
+const { execFile } = require('child_process');
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
 
-/**
- * Connect to cameras from manual IPs or via ONVIF WS-Discovery.
- * Returns an array of camera objects ready for use.
- */
 async function connectCameras(config, logger) {
   let ips = config.cameraIps;
 
@@ -34,9 +33,6 @@ async function connectCameras(config, logger) {
   return results;
 }
 
-/**
- * WS-Discovery: returns list of IP addresses of ONVIF cameras on the network.
- */
 function discoverCameras(logger) {
   return new Promise((resolve) => {
     const { Discovery } = require('onvif');
@@ -62,9 +58,6 @@ function discoverCameras(logger) {
   });
 }
 
-/**
- * Connect to a single camera via ONVIF and return a camera descriptor.
- */
 function connectCamera(ip, port, user, password, logger) {
   return new Promise((resolve, reject) => {
     const cam = new Cam(
@@ -84,11 +77,9 @@ function connectCamera(ip, port, user, password, logger) {
           const info = await promisify(cam.getDeviceInformation.bind(cam))();
           const profiles = await promisify(cam.getProfiles.bind(cam))();
 
-          // Detect capabilities
           const hasPTZ = Boolean(cam.capabilities && cam.capabilities.PTZ);
           const hasAudio = profiles.some((p) => p.audioEncoderConfiguration);
 
-          // Get RTSP stream URL
           let rtspUrl = '';
           try {
             const streamUri = await promisify(cam.getStreamUri.bind(cam))({
@@ -103,7 +94,6 @@ function connectCamera(ip, port, user, password, logger) {
             logger.warn(`Could not get RTSP URI for ${ip}: ${e.message}`);
           }
 
-          // Unique external ID based on MAC or serial
           const serial = info.serialNumber || info.hardwareId || ip.replace(/\./g, '_');
           const externalId = serial;
           const name = info.model ? `${info.manufacturer} ${info.model}` : `Camera ${ip}`;
@@ -121,45 +111,27 @@ function connectCamera(ip, port, user, password, logger) {
             onvifCam: cam,
             info,
 
-            // Convenience method: capture a JPEG snapshot
             async getSnapshot() {
-              const snapshotUri = await promisify(cam.getSnapshotUri.bind(cam))({
-                profileToken: profiles[0].$.token,
-              });
+              const rtspUri = `rtsp://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${ip}:554//h264Preview_01_main`;
+              const tmpFile = path.join(os.tmpdir(), `snap_${Date.now()}.jpg`);
+              logger.info(`Capturing snapshot via ffmpeg: ${tmpFile}`);
 
-              // Log l'URI brute pour debug
-              logger.info(`Raw snapshot URI from ONVIF: ${snapshotUri.uri}`);
-
-              // Corriger l'host si la caméra retourne localhost/127.0.0.1
-              const urlObj = new URL(snapshotUri.uri);
-              if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
-                logger.warn(`Snapshot URI had wrong host (${urlObj.hostname}), correcting to ${ip}`);
-                urlObj.hostname = ip;
-              }
-              const fixedUri = urlObj.toString();
-              logger.info(`Fetching snapshot from: ${fixedUri}`);
-
-              // Tentative Basic Auth
-              let response = await fetch(fixedUri, {
-                headers: {
-                  Authorization: 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64'),
-                },
-                signal: AbortSignal.timeout(10000),
-              });
-
-              // Fallback Digest Auth si 401
-              if (response.status === 401) {
-                logger.debug('Basic auth rejected (401), retrying with Digest Auth...');
-                const digestClient = new DigestFetch(user, password);
-                response = await digestClient.fetch(fixedUri, {
-                  signal: AbortSignal.timeout(10000),
+              await new Promise((res, rej) => {
+                execFile('ffmpeg', [
+                  '-rtsp_transport', 'tcp',
+                  '-i', rtspUri,
+                  '-frames:v', '1',
+                  '-q:v', '2',
+                  '-y', tmpFile,
+                ], { timeout: 15000 }, (err) => {
+                  if (err) return rej(new Error(`ffmpeg failed: ${err.message}`));
+                  res();
                 });
-              }
+              });
 
-              if (!response.ok) throw new Error(`Snapshot fetch failed: ${response.status}`);
-              const buffer = await response.arrayBuffer();
-              const b64 = Buffer.from(buffer).toString('base64');
-              return `image/jpeg;base64,${b64}`;
+              const buffer = fs.readFileSync(tmpFile);
+              fs.unlinkSync(tmpFile);
+              return `image/jpeg;base64,${buffer.toString('base64')}`;
             },
           });
         } catch (innerErr) {
