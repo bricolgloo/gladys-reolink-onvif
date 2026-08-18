@@ -128,7 +128,7 @@ function connectCamera(ip, port, user, password, logger) {
               });
 
               // Log l'URI brute pour debug
-              logger.debug(`Raw snapshot URI from ONVIF: ${snapshotUri.uri}`);
+              logger.info(`Raw snapshot URI from ONVIF: ${snapshotUri.uri}`);
 
               // Corriger l'host si la caméra retourne localhost/127.0.0.1
               const urlObj = new URL(snapshotUri.uri);
@@ -137,7 +137,7 @@ function connectCamera(ip, port, user, password, logger) {
                 urlObj.hostname = ip;
               }
               const fixedUri = urlObj.toString();
-              logger.debug(`Fetching snapshot from: ${fixedUri}`);
+              logger.info(`Fetching snapshot from: ${fixedUri}`);
 
               // Tentative Basic Auth
               let response = await fetch(fixedUri, {
