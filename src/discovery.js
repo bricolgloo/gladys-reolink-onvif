@@ -2,6 +2,7 @@
 
 const { Cam } = require('onvif');
 const { promisify } = require('util');
+const DigestFetch = require('digest-fetch');
 
 /**
  * Connect to cameras from manual IPs or via ONVIF WS-Discovery.
@@ -94,7 +95,6 @@ function connectCamera(ip, port, user, password, logger) {
               protocol: 'RTSP',
               profileToken: profiles[0].$.token,
             });
-            // Inject credentials into RTSP URL
             rtspUrl = streamUri.uri.replace(
               'rtsp://',
               `rtsp://${encodeURIComponent(user)}:${encodeURIComponent(password)}@`,
@@ -126,13 +126,36 @@ function connectCamera(ip, port, user, password, logger) {
               const snapshotUri = await promisify(cam.getSnapshotUri.bind(cam))({
                 profileToken: profiles[0].$.token,
               });
-              const response = await fetch(snapshotUri.uri, {
+
+              // Log l'URI brute pour debug
+              logger.debug(`Raw snapshot URI from ONVIF: ${snapshotUri.uri}`);
+
+              // Corriger l'host si la caméra retourne localhost/127.0.0.1
+              const urlObj = new URL(snapshotUri.uri);
+              if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
+                logger.warn(`Snapshot URI had wrong host (${urlObj.hostname}), correcting to ${ip}`);
+                urlObj.hostname = ip;
+              }
+              const fixedUri = urlObj.toString();
+              logger.debug(`Fetching snapshot from: ${fixedUri}`);
+
+              // Tentative Basic Auth
+              let response = await fetch(fixedUri, {
                 headers: {
-                  Authorization:
-                    'Basic ' + Buffer.from(`${user}:${password}`).toString('base64'),
+                  Authorization: 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64'),
                 },
                 signal: AbortSignal.timeout(10000),
               });
+
+              // Fallback Digest Auth si 401
+              if (response.status === 401) {
+                logger.debug('Basic auth rejected (401), retrying with Digest Auth...');
+                const digestClient = new DigestFetch(user, password);
+                response = await digestClient.fetch(fixedUri, {
+                  signal: AbortSignal.timeout(10000),
+                });
+              }
+
               if (!response.ok) throw new Error(`Snapshot fetch failed: ${response.status}`);
               const buffer = await response.arrayBuffer();
               const b64 = Buffer.from(buffer).toString('base64');
