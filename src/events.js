@@ -34,7 +34,7 @@ async function startCameraMotionPolling(gladys, state, cam, logger) {
     try {
       const pullMessages = promisify(onvifCam.pullMessages.bind(onvifCam));
       const result = await pullMessages({ MessageLimit: 10 });
-      const messages = result.notificationMessage || [];
+      const messages = Array.isArray(result) ? result : (result.notificationMessage || []);
 
       for (const msg of messages) {
         const topic = msg.topic && msg.topic._ ? msg.topic._ : '';
