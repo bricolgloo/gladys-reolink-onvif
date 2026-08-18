@@ -117,13 +117,14 @@ function connectCamera(ip, port, user, password, logger) {
               logger.info(`Capturing snapshot via ffmpeg: ${tmpFile}`);
 
               await new Promise((res, rej) => {
-                execFile('ffmpeg', [
-                  '-rtsp_transport', 'tcp',
-                  '-i', rtspUri,
-                  '-frames:v', '1',
-                  '-q:v', '2',
-                  '-y', tmpFile,
-                ], { timeout: 15000 }, (err) => {
+execFile('ffmpeg', [
+  '-rtsp_transport', 'tcp',
+  '-i', rtspUri,
+  '-frames:v', '1',
+  '-q:v', '2',
+  '-update', '1',
+  '-y', tmpFile,
+], { timeout: 15000 }, (err) => {
                   if (err) return rej(new Error(`ffmpeg failed: ${err.message}`));
                   res();
                 });
