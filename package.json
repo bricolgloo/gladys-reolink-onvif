@@ -1,6 +1,6 @@
 {
   "name": "gladys-reolink-onvif",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Gladys Assistant integration for Reolink cameras via ONVIF",
   "main": "index.js",
   "scripts": {
