@@ -20,8 +20,9 @@ function startSnapshotLoop(gladys, state, logger) {
 async function captureAll(gladys, state, logger) {
   for (const cam of Object.values(state.cameras)) {
     try {
-      const image = await cam.getSnapshot();
       const featureExternalId = gladys.externalId(`${cam.externalId}:image`);
+      logger.info(`Publishing image to feature: ${featureExternalId}`);  // ← ajoute ça
+      const image = await cam.getSnapshot();
       await gladys.publishCameraImage(featureExternalId, image);
     } catch (err) {
       logger.warn(`Snapshot failed for ${cam.name}: ${err.message}`);
